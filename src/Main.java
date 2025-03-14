@@ -26,27 +26,67 @@ public class Main {
 
         while(!finalPath.contains("("+(maze.length-1)+","+(maze[0].length-1)+")")){
 
-            boolean goingUp;
-            boolean goingDown;
-            boolean goingLeft;
-            boolean goingRight;
+            int placesToGo = 0;
+
+            boolean goingUp = false;
+            boolean goingDown = false;
+            boolean goingLeft = false;
+            boolean goingRight = false;
 
 
             if(checkUp(currentRow,currentColumn,maze,finalPath)) {
+                goingUp = true;
+                placesToGo++;
+            }
+            if(checkDown(currentRow,currentColumn,maze,finalPath)) {
+                goingDown = true;
+                placesToGo++;
+            }
+            if(checkLeft(currentRow,currentColumn,maze,finalPath)) {
+                goingLeft = true;
+                placesToGo++;
+            }
+            if(checkRight(currentRow,currentColumn,maze,finalPath)) {
+                goingRight = true;
+                placesToGo++;
+            }
+
+
+            if(placesToGo > 1)
+                intersectionPoints.add("("+currentRow+","+currentColumn+")");
+
+
+            if(goingUp) {
                 currentRow --;
             }
-            else if(checkDown(currentRow,currentColumn,maze,finalPath)) {
+            else if(goingDown) {
                 currentRow ++;
             }
-            else if(checkLeft(currentRow,currentColumn,maze,finalPath)) {
+            else if(goingLeft) {
                 currentColumn --;
             }
-            else if(checkRight(currentRow,currentColumn,maze,finalPath)) {
+            else if(goingRight) {
                 currentColumn ++;
             }
 
+
+
             finalPath.add("("+currentRow+","+currentColumn+")");
-            count++;
+
+
+
+
+            if(placesToGo == 0)
+                fillDeadEnd(finalPath,intersectionPoints,currentRow,currentColumn,maze);
+
+            for (int i = 0; i < maze.length; i++) {
+                System.out.println(Arrays.toString(maze[i]));
+            }
+
+
+            System.out.println(finalPath);
+            System.out.println(intersectionPoints);
+
 
 
         }
@@ -113,5 +153,22 @@ public class Main {
             return true;
 
         return false;
+    }
+
+    public static void fillDeadEnd(ArrayList<String> path, ArrayList<String> intersectionPoints, int rowCurrent, int columnCurrent,String[][] maze){
+        int x = path.indexOf(intersectionPoints.getLast());
+        for (int i = path.size(); i > x; i--) {
+            rowCurrent = Integer.parseInt(path.getLast().substring(path.getLast().indexOf("(")+1,path.getLast().indexOf(",")));
+            columnCurrent = Integer.parseInt(path.getLast().substring(path.getLast().indexOf(",")+1, path.getLast().indexOf(")")));
+            maze[rowCurrent][columnCurrent] = "#";
+
+
+
+
+
+        }
+        intersectionPoints.removeLast();
+
+
     }
 }
