@@ -10,10 +10,11 @@ public class Main {
         System.out.println("Hello world!");
         String[][] maze = getMaze("src/InputData");
 
-        ArrayList<String> finalPath = new ArrayList<String>();
+        ArrayList<Point> finalPath = new ArrayList<Point>();
+        finalPath.add(new Point(0,0));
+        maze[0][0] = "V";
 
-        ArrayList<String> intersectionPoints = new ArrayList<String>();
-        finalPath.add("(0,0)");
+        ArrayList<Point> intersectionPoints = new ArrayList<Point>();
         for (int i = 0; i < maze.length; i++) {
             System.out.println(Arrays.toString(maze[i]));
         }
@@ -24,7 +25,7 @@ public class Main {
 
 
 
-        while(!finalPath.contains("("+(maze.length-1)+","+(maze[0].length-1)+")")){
+        while(!(finalPath.getLast().getRow()==(maze.length-1)) && !(finalPath.getLast().getRow()==maze[0].length-1)){
 
             int placesToGo = 0;
 
@@ -52,8 +53,7 @@ public class Main {
             }
 
 
-            if(placesToGo > 1)
-                intersectionPoints.add("("+currentRow+","+currentColumn+")");
+
 
 
             if(goingUp) {
@@ -70,14 +70,25 @@ public class Main {
             }
 
 
+            if(placesToGo > 1) {
+                finalPath.getLast().setFork(true);
+                maze[finalPath.getLast().getRow()][finalPath.getLast().getColumn()] = "I";
+            }
+                finalPath.add(new Point(currentRow, currentColumn));
+                maze[currentRow][currentColumn] = "V";
 
-            finalPath.add("("+currentRow+","+currentColumn+")");
 
 
 
 
-            if(placesToGo == 0)
-                fillDeadEnd(finalPath,intersectionPoints,currentRow,currentColumn,maze);
+
+
+            if(placesToGo == 0) {
+                fillDeadEnd(finalPath, maze);
+                currentRow = finalPath.getLast().getRow();
+                currentColumn = finalPath.getLast().getColumn();
+            }
+
 
             for (int i = 0; i < maze.length; i++) {
                 System.out.println(Arrays.toString(maze[i]));
@@ -125,49 +136,44 @@ public class Main {
     }
 
 
-    public static boolean checkUp(int row,int column,String [][] givenMaze,ArrayList<String> places)
+    public static boolean checkUp(int row,int column,String [][] givenMaze,ArrayList<Point> places)
     {
 
-        if(row != 0 && !places.contains("("+(row-1)+","+column+")") && Objects.equals(givenMaze[row - 1][column], "."))
+        if(row != 0 && Objects.equals(givenMaze[row - 1][column], "."))
             return true;
 
         return false;
     }
-    public static boolean checkDown(int row,int column,String [][] givenMaze,ArrayList<String> places)
+    public static boolean checkDown(int row,int column,String [][] givenMaze,ArrayList<Point> places)
     {
-        if(row!= givenMaze.length-1 && !places.contains("("+(row+1)+","+column+")") &&  Objects.equals(givenMaze[row + 1][column], "."))
+        if(row!= givenMaze.length-1 && Objects.equals(givenMaze[row + 1][column], "."))
             return true;
 
         return false;
     }
-    public static boolean checkLeft(int row,int column,String [][] givenMaze,ArrayList<String> places)
+    public static boolean checkLeft(int row,int column,String [][] givenMaze,ArrayList<Point> places)
     {
-        if(column != 0 && !places.contains("("+(row)+","+(column-1)+")") && Objects.equals(givenMaze[row][column - 1], "."))
+        if(column != 0 && Objects.equals(givenMaze[row][column - 1], "."))
             return true;
 
         return false;
     }
-    public static boolean checkRight(int row,int column,String [][] givenMaze,ArrayList<String> places)
+    public static boolean checkRight(int row,int column,String [][] givenMaze,ArrayList<Point> places)
     {
-        if(column != givenMaze[0].length-1 && !places.contains("("+(row)+","+(column+1)+")") && Objects.equals(givenMaze[row][column + 1], "."))
+        if(column != givenMaze[0].length-1 && Objects.equals(givenMaze[row][column + 1], "."))
             return true;
 
         return false;
     }
 
-    public static void fillDeadEnd(ArrayList<String> path, ArrayList<String> intersectionPoints, int rowCurrent, int columnCurrent,String[][] maze){
-        int x = path.indexOf(intersectionPoints.getLast());
-        for (int i = path.size(); i > x; i--) {
-            rowCurrent = Integer.parseInt(path.getLast().substring(path.getLast().indexOf("(")+1,path.getLast().indexOf(",")));
-            columnCurrent = Integer.parseInt(path.getLast().substring(path.getLast().indexOf(",")+1, path.getLast().indexOf(")")));
-            maze[rowCurrent][columnCurrent] = "#";
+    public static void fillDeadEnd(ArrayList<Point> path,String[][] maze){
 
-
-
-
-
+        for (int i = path.size()-1; i > 0; i--) {
+            if (path.get(i).isFork())
+                break;
+            maze[path.get(i).getRow()][path.get(i).getColumn()] = "#";
+            path.removeLast();
         }
-        intersectionPoints.removeLast();
 
 
     }
