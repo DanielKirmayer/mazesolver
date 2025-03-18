@@ -11,21 +11,18 @@ public class Main {
         String[][] maze = getMaze("src/InputData");
 
         ArrayList<Point> finalPath = new ArrayList<Point>();
-        finalPath.add(new Point(0,0));
+        finalPath.add(new Point(0, 0));
         maze[0][0] = "V";
 
         ArrayList<Point> intersectionPoints = new ArrayList<Point>();
         for (int i = 0; i < maze.length; i++) {
             System.out.println(Arrays.toString(maze[i]));
         }
-        int count = 0;
 
         int currentRow = 0;
         int currentColumn = 0;
 
-
-
-        while(!(finalPath.getLast().getRow()==(maze.length-1)) && !(finalPath.getLast().getRow()==maze[0].length-1)){
+        while (!(finalPath.getLast().getRow() == maze.length - 1 && finalPath.getLast().getColumn() == maze[0].length - 1)) {
 
             int placesToGo = 0;
 
@@ -34,84 +31,65 @@ public class Main {
             boolean goingLeft = false;
             boolean goingRight = false;
 
-
-            if(checkUp(currentRow,currentColumn,maze,finalPath)) {
+            if (checkUp(currentRow, currentColumn, maze)) {
                 goingUp = true;
                 placesToGo++;
             }
-            if(checkDown(currentRow,currentColumn,maze,finalPath)) {
+            if (checkDown(currentRow, currentColumn, maze)) {
                 goingDown = true;
                 placesToGo++;
             }
-            if(checkLeft(currentRow,currentColumn,maze,finalPath)) {
+            if (checkLeft(currentRow, currentColumn, maze)) {
                 goingLeft = true;
                 placesToGo++;
             }
-            if(checkRight(currentRow,currentColumn,maze,finalPath)) {
+            if (checkRight(currentRow, currentColumn, maze)) {
                 goingRight = true;
                 placesToGo++;
             }
 
-
-
-
-
-            if(goingUp) {
-                currentRow --;
-            }
-            else if(goingDown) {
-                currentRow ++;
-            }
-            else if(goingLeft) {
-                currentColumn --;
-            }
-            else if(goingRight) {
-                currentColumn ++;
-            }
-
-
-            if(placesToGo > 1) {
+            if (placesToGo > 1) {
                 finalPath.getLast().setFork(true);
                 maze[finalPath.getLast().getRow()][finalPath.getLast().getColumn()] = "I";
+                intersectionPoints.add(finalPath.getLast());
             }
-                finalPath.add(new Point(currentRow, currentColumn));
-                maze[currentRow][currentColumn] = "V";
 
-
-
-
-
-
-
-            if(placesToGo == 0) {
+            if (goingUp) {
+                currentRow--;
+            } else if (goingDown) {
+                currentRow++;
+            } else if (goingLeft) {
+                currentColumn--;
+            } else if (goingRight) {
+                currentColumn++;
+            } else {
                 fillDeadEnd(finalPath, maze);
-                currentRow = finalPath.getLast().getRow();
-                currentColumn = finalPath.getLast().getColumn();
+                if (!intersectionPoints.isEmpty()) {
+                    Point lastFork = intersectionPoints.removeLast();
+                    currentRow = lastFork.getRow();
+                    currentColumn = lastFork.getColumn();
+                }
             }
 
+            finalPath.add(new Point(currentRow, currentColumn));
+            maze[currentRow][currentColumn] = "V";
 
             for (int i = 0; i < maze.length; i++) {
                 System.out.println(Arrays.toString(maze[i]));
             }
 
-
             System.out.println(finalPath);
             System.out.println(intersectionPoints);
-
-
-
         }
-        System.out.println(finalPath);
-
-
+        System.out.println("Solution Path: " + finalPath);
     }
+
     public static String[][] getMaze(String fileName) {
         File f = new File(fileName);
         Scanner s = null;
         try {
             s = new Scanner(f);
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             System.out.println("File not found.");
             System.exit(1);
         }
@@ -132,49 +110,28 @@ public class Main {
             }
         }
         return maze;
-
     }
 
-
-    public static boolean checkUp(int row,int column,String [][] givenMaze,ArrayList<Point> places)
-    {
-
-        if(row != 0 && Objects.equals(givenMaze[row - 1][column], "."))
-            return true;
-
-        return false;
-    }
-    public static boolean checkDown(int row,int column,String [][] givenMaze,ArrayList<Point> places)
-    {
-        if(row!= givenMaze.length-1 && Objects.equals(givenMaze[row + 1][column], "."))
-            return true;
-
-        return false;
-    }
-    public static boolean checkLeft(int row,int column,String [][] givenMaze,ArrayList<Point> places)
-    {
-        if(column != 0 && Objects.equals(givenMaze[row][column - 1], "."))
-            return true;
-
-        return false;
-    }
-    public static boolean checkRight(int row,int column,String [][] givenMaze,ArrayList<Point> places)
-    {
-        if(column != givenMaze[0].length-1 && Objects.equals(givenMaze[row][column + 1], "."))
-            return true;
-
-        return false;
+    public static boolean checkUp(int row, int column, String[][] givenMaze) {
+        return row != 0 && Objects.equals(givenMaze[row - 1][column], ".");
     }
 
-    public static void fillDeadEnd(ArrayList<Point> path,String[][] maze){
+    public static boolean checkDown(int row, int column, String[][] givenMaze) {
+        return row != givenMaze.length - 1 && Objects.equals(givenMaze[row + 1][column], ".");
+    }
 
-        for (int i = path.size()-1; i > 0; i--) {
-            if (path.get(i).isFork())
-                break;
-            maze[path.get(i).getRow()][path.get(i).getColumn()] = "#";
-            path.removeLast();
+    public static boolean checkLeft(int row, int column, String[][] givenMaze) {
+        return column != 0 && Objects.equals(givenMaze[row][column - 1], ".");
+    }
+
+    public static boolean checkRight(int row, int column, String[][] givenMaze) {
+        return column != givenMaze[0].length - 1 && Objects.equals(givenMaze[row][column + 1], ".");
+    }
+
+    public static void fillDeadEnd(ArrayList<Point> path, String[][] maze) {
+        while (!path.isEmpty() && !path.getLast().isFork()) {
+            Point p = path.removeLast();
+            maze[p.getRow()][p.getColumn()] = "#";
         }
-
-
     }
 }
