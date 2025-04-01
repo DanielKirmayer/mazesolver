@@ -32,7 +32,7 @@ public class Point {
 
     @Override
     public String toString() {
-        return "("+row+","+column+")";
+        return "("+row+", "+column+")";
     }
     public boolean compare(Point other){
         if(other.getRow() == this.getRow() && other.getColumn() == this.getColumn())

@@ -74,14 +74,14 @@ public class Main {
             finalPath.add(new Point(currentRow, currentColumn));
             maze[currentRow][currentColumn] = "V";
 
-            for (int i = 0; i < maze.length; i++) {
-                System.out.println(Arrays.toString(maze[i]));
-            }
-
-            System.out.println(finalPath);
-            System.out.println(intersectionPoints);
         }
         System.out.println("Solution Path: " + finalPath);
+        for (int i = 0; i < finalPath.size(); i++) {
+            if(i != finalPath.size() - 1)
+                System.out.print(finalPath.get(i)+" ---> ");
+            else
+                System.out.println(finalPath.get(i));
+        }
     }
 
     public static String[][] getMaze(String fileName) {
@@ -132,6 +132,9 @@ public class Main {
         while (!path.isEmpty() && !path.getLast().isFork()) {
             Point p = path.removeLast();
             maze[p.getRow()][p.getColumn()] = "#";
+        }
+        if (!path.isEmpty()) {
+            path.removeLast();
         }
     }
 }
